@@ -1,4 +1,5 @@
 <?php
+  // inlude functions and start session
   require_once(__DIR__.'/core/core.php');
   session_start();
 ?>
@@ -27,6 +28,7 @@
         <h2>Nejoblíbenější</h2>
         <div class="row fav-list">
           <?php
+            // get array of top rated posts
             $topPosts = getTopPosts(8);
           ?>
           <?php if($topPosts) : ?>
@@ -56,6 +58,7 @@
         <h2>Kategorie</h2>
         <div class="row">
           <?php
+            // get all categories
             $categories = getCategories();
           ?>
           <?php if($categories) : ?>

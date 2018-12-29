@@ -1,7 +1,9 @@
 <?php
+  // inlude functions and start session
   require_once(__DIR__.'/core/core.php');
   session_start();
 
+  // if user is already logged in, redirect to profile page
   if ( isset($_SESSION['userid']) ) {
     // redirect
     $url  = bloginfo('url');
@@ -10,9 +12,10 @@
     exit();
   }
 
-  $errors       = false;
-
   // Registrace
+
+  // errors
+  $errors       = false;
   $forename_e   = false;
   $surename_e   = false;
   $emailReg_e   = 0;
@@ -21,6 +24,7 @@
   $duplicatedEmail = false;
   $otherError = false;
 
+  // get input data
   $forename   = isset($_POST['forename']) ? htmlspecialchars($_POST['forename']) : '';
   $surename   = isset($_POST['surename']) ? htmlspecialchars($_POST['surename']) : '';
   $emailReg   = isset($_POST['emailSignup']) ? htmlspecialchars($_POST['emailSignup']) : '';
@@ -28,48 +32,57 @@
   $passwdAReg = isset($_POST['passwdAgain']) ? htmlspecialchars($_POST['passwdAgain']) : '';
 
 
-  // Pokud byl odeslan formular pro registraci
+  // if register form is submitted
   if( isset($_POST['register_submit']) ) {
 
-    if( isset($_POST['login_submit']) ) {
-      unset($_POST['login_submit']);
-    }
-
+    // if name is empty
     if ( $forename == '' ) {
       $forename_e = true;
       $errors = true;
     }
+
+    // if surname is empty
     if ( $surename == '' ) {
       $surename_e = true;
       $errors = true;
     }
 
+    // if email is empty
     if ( $emailReg == '' ) {
       $emailReg_e = 1;
       $errors = true;
     }
+    // if email does not match pattern
     else if ( !preg_match('/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/', $emailReg) ) {
       $emailReg_e = 2;
       $errors = 1;
     }
     else { /* code... */ }
 
+    // if password does not match pattern
     if ( !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/', $passwdReg) ) {
       $passwdReg_e = true;
       $errors = true;
     }
     else {
+      // if passwords does not match
       if ( $passwdReg != $passwdAReg ) {
         $passwdAReg_e = true;
         $errors = true;
       }
     }
 
+    // if no input errors
     if (!$errors) {
+      // insert new user into database
       $newUser = registerUser($forename, $surename, $emailReg, $passwdReg);
       switch ($newUser) {
+        // if user successfully inserted
         case 1:
+          // get user
           $user = getUserByEmail($emailReg);
+
+          // if got user, set new SESSION and redirect to profile page
           if ($user) {
             $_SESSION['userid'] = $user['id'];
             $url  = bloginfo('url');
@@ -81,9 +94,13 @@
             $otherError = true;
           }
           break;
+
+        // if email already exists in database
         case -1:
           $duplicatedEmail = true;
           break;
+
+        // if other error during db conection occured
         case -2:
           $otherError = true;
           break;
@@ -112,6 +129,8 @@
           <h1>Registrace</h1>
         </div>
       </div>
+
+      <!-- Register form -->
       <div class="row">
         <div class="col-12">
             <form id="signup-form" name="signup-form" action="<?php echo bloginfo('url'); ?>/register.php" method="post">
@@ -162,6 +181,7 @@
       </div>
     </div>
 
+    <!-- Form validation -->
     <script src="<?php echo bloginfo('url') ?>/assets/js/validate-register.js"></script>
 
   <?php include_footer() ?>

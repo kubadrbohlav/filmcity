@@ -1,7 +1,9 @@
 <?php
+  // inlude functions and start session
   require_once(__DIR__.'/core/core.php');
   session_start();
 
+  // if user is already logged in, redirect to profile page
   if ( isset($_SESSION['userid']) ) {
     // redirect
     $url  = bloginfo('url');
@@ -10,36 +12,40 @@
     exit();
   }
 
-  $errors       = false;
-
   // Prihlaseni
 
+  // errors
+  $errors       = false;
   $email_e  = false;
   $passwd_e = false;
 
+  // get email and password
   $email  = isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '';
   $passwd = isset($_POST['passwd']) ? htmlspecialchars($_POST['passwd']) : '';
 
+  // if login form is submitted
   if ( isset($_POST['login_submit']) ) {
 
-    if( isset($_POST['register_submit']) ) {
-      unset($_POST['register_submit']);
-    }
-
+    // if email is empty
     if ( $email == '' ) {
       $email_e = true;
       $errors = true;
     }
 
+    // if password is empty
     if ( $passwd == '' ) {
       $passwd_e = true;
       $errors = true;
     }
 
+    // if no input errors
     if (!$errors) {
+      // get user
       $user = getUserByEmail($email);
 
+      // if user found
       if ($user) {
+        // if password hashes match, set SESSION and redirect to profile page
         if (password_verify($passwd, $user['passwd'])) {
           $_SESSION['userid'] = $user['id'];
           $url  = bloginfo('url');
@@ -74,6 +80,8 @@
           <h1>Přihlášení</h1>
         </div>
       </div>
+
+      <!-- Login form -->
       <div class="row">
         <div class="col-12">
           <form id="login-form" name="login-form" action="<?php echo bloginfo('url'); ?>/login.php" method="post">
@@ -102,6 +110,7 @@
       </div>
     </div>
 
+    <!-- Form validation -->
     <script src="<?php echo bloginfo('url') ?>/assets/js/validate-login.js"></script>
 
   <?php include_footer() ?>

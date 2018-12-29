@@ -1,10 +1,13 @@
 <?php
+  // inlude functions and start session
   require_once(__DIR__.'/core/core.php');
   session_start();
 
+  // get category ID
   $catId = isset($_GET['category']) ? $_GET['category'] : '';
   $category = getCategory($catId);
 
+  // if category does not exists, redirect to all categories
   if($catId && !$category) {
     $url  = bloginfo('url');
     $extra = 'category.php';
@@ -12,10 +15,13 @@
     exit();
   }
 
+  // get current page
   $paged = isset($_GET['paged']) ? $_GET['paged'] : '';
   if ($paged == '' || $paged < 0) {
     $paged = 0;
   }
+
+  // if $paged contains wrong value, then redirect
   if (!is_numeric($paged) || ( (int)(ceil(countPosts($catId)/POST_PER_PAGE)) < $paged ) ) {
     $url = bloginfo('url');
     $extra = 'category.php';
@@ -26,7 +32,10 @@
     exit();
   }
 
+  // get order_by value
   $order_by = isset($_GET['order_by']) ? $_GET['order_by'] : '';
+
+  // if $order_by contains wrong value, then redirect
   if ($order_by && $order_by != 'newest' && $order_by != 'rating') {
     $url = bloginfo('url');
     $extra = 'category.php';
@@ -37,6 +46,7 @@
     exit();
   }
 
+  // get array of posts according to current parameters
   $posts = getPosts($catId, $paged, $order_by);
 
 ?>
@@ -51,10 +61,13 @@
   <body class="category-page blog-page">
     <?php include_header() ?>
 
+    <!-- Heading -->
     <div class="container">
       <div class="category-header row">
         <div class="col-12">
           <h1><?php if($category) echo $category['name']; else echo 'Všechny filmy'; ?></h1>
+
+          <!-- Sorting form -->
           <div class="sorting">
             <form action="<?php echo bloginfo('url') . '/category.php' ?>" method="get">
               <?php if($catId) : ?>
@@ -72,16 +85,20 @@
         </div>
       </div>
 
+      <!-- List of posts -->
       <div class="row">
         <div id="posts" class="col-12 col-md-9">
           <?php if($posts): ?>
 
+            <?php // get pagination ?>
             <?php pagination($catId, $paged, $order_by); ?>
 
+            <?php // iterate array of posts ?>
             <?php foreach( $posts as $post ) : ?>
 
               <?php
-                $cat    = getCategory($post['category']);
+                // get current category
+                $cat = getCategory($post['category']);
               ?>
 
               <article class="post cf">
@@ -109,6 +126,7 @@
 
             <?php endforeach; ?>
 
+            <?php // get pagination ?>
             <?php pagination($catId, $paged, $order_by); ?>
 
           <?php else: ?>
@@ -124,6 +142,7 @@
             <h2>Kategorie</h2>
             <ul>
               <?php
+                // get all categories
                 $categories = getCategories();
                 foreach($categories as $category) {
                   echo '<li><a href="'.bloginfo('url').'/category.php?category='.$category['id'].'" title="'.$category['name'].'">'.$category['name'].'</a></li>';

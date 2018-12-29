@@ -1,4 +1,5 @@
 <?php
+  // inlude functions and start session
   require_once(__DIR__.'/core/core.php');
   session_start();
 
