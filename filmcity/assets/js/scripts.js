@@ -1,6 +1,7 @@
+// remove classes if javascript is allowed by browser
 $('header, #mobile-header, #toggleMenu, #mobile-menu').removeClass('no-js');
 
-
+// Toggle main menu
 $('#toggleMenu').click( function () {
 
   if ( $(this).hasClass('active') ) {
@@ -21,13 +22,14 @@ $('#toggleMenu').click( function () {
   }
 });
 
-
+// Scroll Top button
 $('#scrollTop').click(function(){
   $(window.opera ? 'html' : 'html, body').animate({
     scrollTop: 0
   }, 500);
 });
 
+// Show and hode Toggle button
 $(window).scroll(function() {
   var scrollBtn = $('#scrollTop');
 
