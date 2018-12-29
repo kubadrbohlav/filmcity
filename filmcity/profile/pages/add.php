@@ -1,8 +1,11 @@
 <?php
+  // extend class for processing images and start session
   include(bloginfo('path') . '/core/class.upload.php');
+  session_start();
+
+  // errors
 
   $errors = false;
-
   $title_e      = false;
   $cat_e        = false;
   $image_e      = 0;
@@ -11,6 +14,7 @@
   $rating_e     = false;
   $submit_e     = false;
 
+  // get all inputs
   $title        = isset( $_POST['title'] ) ? htmlspecialchars($_POST['title']) : '';
   $cat          = isset( $_POST['category'] ) ? htmlspecialchars($_POST['category']) : '';
   $desc         = isset( $_POST['description'] ) ? htmlspecialchars($_POST['description']) : '';
@@ -18,96 +22,114 @@
   $rating       = isset( $_POST['rating'] ) ? htmlspecialchars($_POST['rating']) : 2;
   $rawPath  = '';
 
-    if( isset($_POST['submit-post']) ) {
+  // if form is submitted
+  if( isset($_POST['submit-post']) ) {
 
-      if ( $title == '' ) {
-        $title_e = true;
+    // if title is empty
+    if ( $title == '' ) {
+      $title_e = true;
+      $errors = true;
+    }
+
+    // if category is empty
+    if ( $cat == '' ) {
+      $cat_e = true;
+      $errors = true;
+    }
+
+    // if image is submitted
+    if( !empty($_FILES['image']) && $_FILES['image']['size'] > 0 ) {
+      $target_dir = '/uploads/';
+      $target_file = time() . '_' . basename(preg_replace('/[^A-Za-z0-9\_\-\.]/', '', $_FILES['image']['name']));
+      $rawPath = $target_dir.$target_file;
+      $imageType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+
+      // if file already exists
+      if (file_exists($target_file)) {
+        $upload_e = 1;
         $errors = true;
       }
 
-      if ( $cat == '' ) {
-        $cat_e = true;
+      // if file is too large
+      if ($_FILES['image']['size'] > 10000000) {
+        $upload_e = 2;
         $errors = true;
       }
 
-      if( !empty($_FILES['image']) && $_FILES['image']['size'] > 0 ) {
-        $target_dir = '/uploads/';
-        $target_file = time() . '_' . basename(preg_replace('/[^A-Za-z0-9\_\-\.]/', '', $_FILES['image']['name']));
-        $rawPath = $target_dir.$target_file;
-        $imageType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+      // if file type is not allowed
+      if($imageType != "jpg" && $imageType != "png" && $imageType != "jpeg" && $imageType != "gif" ) {
+        $upload_e = 3;
+        $errors = true;
+      }
 
-        // pokud soubor jiz existuje
-        if (file_exists($target_file)) {
-          $upload_e = 1;
-          $errors = true;
-        }
+      // if no image errors
+      if (!$errors) {
+        // create new upload class
+        $handle = new upload($_FILES['image']);
 
-        // pokud je soubor prilis velky
-        if ($_FILES['image']['size'] > 10000000) {
-          $upload_e = 2;
-          $errors = true;
-        }
+        // try uploaded image
+        if ($handle->uploaded) {
+          // if success
 
-        // pokud format souboru neni povolen
-        if($imageType != "jpg" && $imageType != "png" && $imageType != "jpeg" && $imageType != "gif" ) {
-          $upload_e = 3;
-          $errors = true;
-        }
+          // set file name
+          $handle->file_new_name_body = substr($target_file, 0 , (strrpos($target_file, "."))); // remove file suffix
 
-        // pokud nastane chyba pri uploadu
-        if (!$errors) {
-          $handle = new upload($_FILES['image']);
-          if ($handle->uploaded) {
-            $handle->file_new_name_body = substr($target_file, 0 , (strrpos($target_file, "."))); // remove file suffix
-            $handle->image_resize = true;
-            $handle->image_x = 300;
-            $handle->image_ratio_y = true;
-            $handle->process(bloginfo('path').'/uploads/');
-            if ($handle->processed) {
-              // success
-              $handle->clean();
-            }
-            else {
-              $upload_e = 4;
-              $errors = true;
-            }
+          // resize image
+          $handle->image_resize = true;
+          $handle->image_x = 300;
+          $handle->image_ratio_y = true;
+
+          // try to process image
+          $handle->process(bloginfo('path').'/uploads/');
+          if ($handle->processed) {
+            // if success, clean memory
+            $handle->clean();
           }
           else {
             $upload_e = 4;
             $errors = true;
           }
         }
-
-      }
-
-      if ( strlen($desc) < 10 ) {
-        $desc_e = true;
-        $errors = true;
-      }
-
-      if ( $rating == '' ) {
-        $rating_e = true;
-        $errors = true;
-      }
-
-      if (!$errors) {
-
-        if( savePost($title, $desc, $rawPath, $author, $cat, $rating) ) {
-          // redirect
-          $url  = bloginfo('url');
-          $extra = 'profile/?page=manage&msg=created_success';
-          header("Location: $url/$extra");
-          exit();
-        }
         else {
-          $submit_e = true;
+          $upload_e = 4;
+          $errors = true;
         }
-      }
-      else {
-        // code...
       }
 
     }
+
+    // if length of description is less than 10 characters
+    if ( strlen($desc) < 10 ) {
+      $desc_e = true;
+      $errors = true;
+    }
+
+    // if rating is empty
+    if ( $rating == '' ) {
+      $rating_e = true;
+      $errors = true;
+    }
+
+    // if no input errors
+    if (!$errors) {
+
+      // if new post inserted into database, redirect to manage page
+      if( savePost($title, $desc, $rawPath, $author, $cat, $rating) ) {
+        // redirect
+        $url  = bloginfo('url');
+        $extra = 'profile/?page=manage&msg=created_success';
+        header("Location: $url/$extra");
+        exit();
+      }
+      else {
+        $submit_e = true;
+      }
+    }
+    else {
+      // code...
+    }
+
+  }
 ?>
 <!DOCTYPE html>
 <html lang="cs">
@@ -127,6 +149,8 @@
           <a href="<?php echo bloginfo('url').'/profile/?page=manage'; ?>" title="Zpět">Zpět</a>
         </div>
       </div>
+
+      <!-- Add post form -->
       <div class="row">
         <div class="col-12 col-md-9">
           <form id="add-post" name="add-post" action="<?php echo bloginfo('url'); ?>/profile/?page=add" method="post" enctype="multipart/form-data">
@@ -179,10 +203,14 @@
           </form>
         </div>
 
+        <!-- User menu -->
         <?php include(bloginfo('path') . '/core/templates/_user-menu.php'); ?>
 
       </div>
+
+      <!-- Form validation -->
       <script src="<?php echo bloginfo('url').'/assets/js/validate-add.js' ?>"></script>
+
     <?php else : ?>
 
       <?php include(bloginfo('path') . '/core/templates/_permission-denied.php'); ?>

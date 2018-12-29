@@ -1,4 +1,5 @@
 <?php
+  // start session
   session_start();
 ?>
 <!DOCTYPE html>
@@ -13,6 +14,8 @@
   <body class="profile-page blog-page">
     <?php include_header() ?>
     <div class="container">
+
+      <?php // if user is logged in ?>
       <?php if( isLoggedIn() ) : ?>
       <div class="row heading">
         <div class="col-12">
@@ -39,6 +42,7 @@
           </section>
         </div>
 
+        <!-- User menu -->
         <?php include(bloginfo('path') . '/core/templates/_user-menu.php'); ?>
 
       </div>

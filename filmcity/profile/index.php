@@ -1,9 +1,12 @@
 <?php
+  // inlude functions and start session
   require_once( dirname( __FILE__ ) . '/' . '../core/core.php');
   session_start();
 
+  // get page for view
   $page = isset($_GET['page']) ? $_GET['page'] : '';
 
+  // include page for view
   switch ($page) {
     case 'add':
       include('pages/add.php');

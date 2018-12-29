@@ -1,10 +1,16 @@
 <?php
+  // start session
+  session_start();
+
+  // get user ID
   if (isLoggedIn()) {
     $userId = $_SESSION['userid'];
   }
   else {
     $userId = false;
   }
+
+  // if user is not logged in, redirect to profile page
   if (!$userId) {
     // redirect
     $url  = bloginfo('url');
@@ -13,17 +19,24 @@
     exit();
   }
 
+  // get user
   $user = getUserById($userId);
 
+  // get inputs
   $style = isset( $_POST['styles'] ) ? htmlspecialchars($_POST['styles']) : htmlspecialchars($user['styles']);
 
+  // if form is submitted
   if ( isset($_POST['set_styles']) ) {
+
+    // set to default if input is wrong
     if ($style != 'default' && $style != 'red') {
       $style = 'default';
     }
 
+    // update user styles
     if( updateStyles($style, $user['id']) ) {
-      // redirect
+
+      // if success, redirect to profile page
       $url  = bloginfo('url');
       $extra = 'profile?msg=styles_updated';
       header("Location: $url/$extra");
@@ -53,6 +66,8 @@
           <h1>Vzhled</h1>
         </div>
       </div>
+
+      <!-- Update form -->
       <div class="row">
         <div class="col-12 col-md-9">
           <form method="post" action="<?php echo bloginfo('url') . '/profile/?page=style'; ?>">
@@ -69,9 +84,10 @@
           </form>
         </div>
 
+        <!-- User menu -->
         <?php include(bloginfo('path') . '/core/templates/_user-menu.php'); ?>
-
       </div>
+      
     <?php else : ?>
 
       <?php include(bloginfo('path') . '/core/templates/_permission-denied.php'); ?>

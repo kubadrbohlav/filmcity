@@ -1,3 +1,7 @@
+<?php
+  // start session
+  session_start();
+?>
 <!DOCTYPE html>
 <html lang="cs">
 
@@ -10,6 +14,7 @@
   <body class="profile-page blog-page">
     <?php include_header() ?>
     <div class="container">
+      <?php // if user is logged in ?>
       <?php if( isLoggedIn() ) : ?>
       <div class="row heading">
         <div class="col-12">
@@ -17,6 +22,8 @@
           <a href="<?php echo bloginfo('url') . '/profile/?page=add' ?>" title="Přidat nový">Přidat nový <span class="fas fa-plus"></span></a>
         </div>
       </div>
+
+      <!-- User posts -->
       <div class="row">
         <div class="col-12 col-md-9">
           <?php $posts = getUserPosts($userIdentity['id']); ?>
@@ -38,6 +45,7 @@
           <?php endif; ?>
         </div>
 
+        <!-- User menu -->
         <?php include(bloginfo('path') . '/core/templates/_user-menu.php'); ?>
 
       </div>

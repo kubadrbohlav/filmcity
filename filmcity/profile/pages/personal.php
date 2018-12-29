@@ -1,10 +1,16 @@
 <?php
+  // start session
+  session_start();
+
+  // get user ID
   if (isLoggedIn()) {
     $userId = $_SESSION['userid'];
   }
   else {
     $userId = false;
   }
+
+  // if user is not logged in, redirect to profile page
   if (!$userId) {
     // redirect
     $url  = bloginfo('url');
@@ -13,28 +19,41 @@
     exit();
   }
 
+  // get user
   $user = getUserById($userId);
 
+  // get inputs
   $name    = isset( $_POST['name'] ) ? htmlspecialchars($_POST['name']) : htmlspecialchars($user['name']);
   $surname = isset( $_POST['surname'] ) ? htmlspecialchars($_POST['surname']) : htmlspecialchars($user['surname']);
 
+
+  // errors
   $errors = false;
   $name_e = false;
   $surname_e = false;
 
+  // if form is submitted
   if ( isset($_POST['update_user']) ) {
+
+    // if name is empty
     if ($name == '') {
       $errors = true;
       $name_e = true;
     }
+
+    // if surname is empty
     if ($surname == '') {
       $errors = true;
       $surname_e = true;
     }
 
+    // if no input errors
     if(!$errors ) {
+
+      // update user data
       if ( updateUser($user['id'], $name, $surname) ) {
-        // redirect
+
+        // if success, redirect to profile page
         $url  = bloginfo('url');
         $extra = 'profile?msg=detail_updated';
         header("Location: $url/$extra");
@@ -64,6 +83,8 @@
           <h1>Osobní údaje</h1>
         </div>
       </div>
+
+      <!-- Update form -->
       <div class="row">
         <div class="col-12 col-md-9">
           <form id="update-user-form" method="post" action="<?php echo bloginfo('url') . '/profile/?page=detail'; ?>">
@@ -85,10 +106,13 @@
           </form>
         </div>
 
+        <!-- User menu -->
         <?php include(bloginfo('path') . '/core/templates/_user-menu.php'); ?>
-
       </div>
+
+      <!-- Form validation -->
       <script src="<?php echo bloginfo('url').'/assets/js/validate-updateuser.js' ?>"></script>
+      
     <?php else : ?>
 
       <?php include(bloginfo('path') . '/core/templates/_permission-denied.php'); ?>
