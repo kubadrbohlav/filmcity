@@ -3,7 +3,10 @@
 ?>
 <header class="no-js">
   <div class="container cf">
+    <!-- Logo -->
     <a href="<?php echo bloginfo('url'); ?>" title="<?php echo bloginfo('name'); ?>"><img class="logo" src="<?php echo bloginfo('url'); ?>/assets/images/filmcity-logo.svg" alt="FilmCity logo" /></a>
+
+    <!-- Main menu -->
     <nav id="main-menu">
       <ul class="cf">
         <li><a href="<?php echo bloginfo('url'); ?>" title="Úvod">Úvod</a></li>
@@ -20,6 +23,8 @@
         </li>
       </ul>
     </nav>
+
+    <!-- User links -->
     <?php if( isLoggedIn() ): ?>
       <div id="user-links">
         <ul>
@@ -37,6 +42,8 @@
         <a class="login-or-signup" href="<?php echo bloginfo('url'); ?>/login.php" title="Přihlásit se"><span class="fas fa-sign-in-alt"></span> Přihlášení</a>
       </div>
     <?php endif; ?>
+
+    <!-- Mobile Header -->
     <div id="mobile-header" class="no-js">
       <div id="toggleMenu" class="no-js"><span class="fas fa-bars"></span></div>
       <nav id="mobile-menu" class="no-js">

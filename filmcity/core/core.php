@@ -1,6 +1,6 @@
 <?php
 
-// Application constants
+// Application constants ------------------------------------------
 
 define("POST_PER_PAGE", 10);
 
@@ -23,21 +23,41 @@ try {
     exit('<strong>DB - chyba spojeni:</strong> ' . $e->getMessage());
 }
 
-// -------------------------------------------------------------
 
+// Aplication functions ------------------------------------------
+
+
+/**
+ * Includes head assets (css, favicon, javascript,...).
+ */
 function include_head_assets() {
-  require_once __DIR__ . '/templates/head_assets.php';
+  require_once __DIR__ . '/templates/_head_assets.php';
 }
 
+
+/**
+ * Includes page header.
+ */
 function include_header() {
-  require_once __DIR__ . '/templates/header.php';
+  require_once __DIR__ . '/templates/_header.php';
 }
 
+
+/**
+ * Includes page footer.
+ */
 function include_footer() {
-  require_once __DIR__ . '/templates/footer.php';
+  require_once __DIR__ . '/templates/_footer.php';
 }
 
 
+/**
+ * Get blog options.
+ *
+ * @param param This param specifies what info to return.
+ *
+ * @return mixed
+ */
 function bloginfo( $param ) {
   global $db;
   $sql = 'SELECT * FROM options WHERE option_id=1';
@@ -59,11 +79,23 @@ function bloginfo( $param ) {
 }
 
 
+/**
+ * Checks if user if logged in
+ *
+ * @return boolean
+ */
 function isLoggedIn() {
   return isset($_SESSION['userid']) ? true : false;
 }
 
 
+/**
+ * Get user by email. Returns user if is found, otherwise returns false
+ *
+ * @param email User email
+ *
+ * @return mixed
+ */
 function getUserByEmail($email) {
   global $db;
   $sql = 'SELECT * FROM users WHERE email=:email';
@@ -80,6 +112,13 @@ function getUserByEmail($email) {
 }
 
 
+/**
+ * Get user by ID. Returns user if is found, otherwise returns false
+ *
+ * @param uid User ID
+ *
+ * @return mixed
+ */
 function getUserById($uid) {
   global $db;
   $sql = 'SELECT * FROM users WHERE id=:uid';
@@ -96,6 +135,16 @@ function getUserById($uid) {
 }
 
 
+/**
+ * Inserts new user into database. Return 1 if success.
+ *
+ * @param name User name
+ * @param surname User surname
+ * @param email User email
+ * @param passwd User password
+ *
+ * @return int
+ */
 function registerUser($name, $surname, $email, $passwd) {
   global $db;
   $db->beginTransaction();
@@ -124,6 +173,11 @@ function registerUser($name, $surname, $email, $passwd) {
 }
 
 
+/**
+ * Returns all categories ordered by name. If nothing found, returns false.
+ *
+ * @return mixed
+ */
 function getCategories() {
   global $db;
   $sql = 'SELECT * FROM categories ORDER BY name';
@@ -139,6 +193,13 @@ function getCategories() {
 }
 
 
+/**
+ * Returns html construction of select options
+ *
+ * @param selectedCat ID of currently selected category
+ *
+ * @return void
+ */
 function getCategoriesOptions($selectedCat) {
   global $db;
   $sql = 'SELECT * FROM categories ORDER BY name';
@@ -158,6 +219,13 @@ function getCategoriesOptions($selectedCat) {
 }
 
 
+/**
+ * Get all posts created by user. If no posts found, return false.
+ *
+ * @param uid User ID
+ *
+ * @return mixed
+ */
 function getUserPosts($uid) {
   global $db;
   $sql = 'SELECT * FROM posts WHERE author=:uid ORDER BY created DESC';
@@ -174,6 +242,13 @@ function getUserPosts($uid) {
 }
 
 
+/**
+ * Get post by its ID. If no post found, return false.
+ *
+ * @param pid Post ID
+ *
+ * @return mixed
+ */
 function getPostById($pid) {
   global $db;
   $sql = 'SELECT * FROM posts WHERE id=:pid';
@@ -190,6 +265,15 @@ function getPostById($pid) {
 }
 
 
+/**
+ * Get set of posts according to specified parameters. Returns array of posts if something found, otherwise returns false.
+ *
+ * @param cid Category ID
+ * @param page Number of page
+ * @param order_by Order By option
+ *
+ * @return mixed
+ */
 function getPosts($cid = '', $page, $order_by) {
   global $db;
   $sql = 'SELECT * FROM posts';
@@ -235,6 +319,13 @@ function getPosts($cid = '', $page, $order_by) {
 }
 
 
+/**
+ * Get number of posts. If category ID is not specified, returns total number of posts in database. If error occures during db conection, returns false.
+ *
+ * @param cid Category ID
+ *
+ * @return mixed
+ */
 function countPosts($cid = '') {
   global $db;
   if($cid) {
@@ -256,6 +347,13 @@ function countPosts($cid = '') {
 }
 
 
+/**
+ * Get top rated posts. Returns list of posts. If nothing found, returns false.
+ *
+ * @param num Number of top posts
+ *
+ * @return mixed
+ */
 function getTopPosts($num) {
   global $db;
   $sql = 'SELECT p.id, title, image, AVG(value) AS AVGRating FROM posts AS p JOIN ratings AS r ON p.id = r.post  GROUP BY p.id ORDER BY AVGRating DESC LIMIT :num';
@@ -272,6 +370,13 @@ function getTopPosts($num) {
 }
 
 
+/**
+ * Get category by ID. Returns category if found, otherwise returns false.
+ *
+ * @param cid Category ID
+ *
+ * @return mixed
+ */
 function getCategory($cid) {
   global $db;
   if(!$cid) {
@@ -292,6 +397,14 @@ function getCategory($cid) {
 }
 
 
+/**
+ * Returns query string for url.
+ *
+ * @param cid Category ID
+ * @param order_by Order By option
+ *
+ * @return string
+ */
 function linkParams($cid, $order_by) {
     $url = '';
     if ($cid) {
@@ -304,6 +417,15 @@ function linkParams($cid, $order_by) {
 }
 
 
+/**
+ * Get html construction for pagination.
+ *
+ * @param cid Category ID
+ * @param currentPage Number of current page
+ * @param order_by Order By option
+ *
+ * @return string
+ */
 function pagination($cid, $currentPage, $order_by) {
   $totalPosts = countPosts($cid);
   if ( $totalPosts > POST_PER_PAGE ) {
@@ -340,6 +462,15 @@ function pagination($cid, $currentPage, $order_by) {
 }
 
 
+/**
+ * Insert new rating into database. Returns true on success, otherwise returns false.
+ *
+ * @param pid Post ID
+ * @param uid User ID
+ * @param value Rating value
+ *
+ * @return boolean
+ */
 function addRating($pid, $uid, $value) {
   global $db;
   $db->beginTransaction();
@@ -378,6 +509,13 @@ function addRating($pid, $uid, $value) {
 }
 
 
+/**
+ * Get total number of ratings of post.
+ *
+ * @param pid Post ID
+ *
+ * @return int
+ */
 function countRatings($pid) {
   global $db;
   $sql = 'SELECT * FROM ratings WHERE post=:pid';
@@ -393,6 +531,13 @@ function countRatings($pid) {
 }
 
 
+/**
+ * Return average rating of post.
+ *
+ * @param pid Post ID
+ *
+ * @return mixed
+ */
 function avgRating($pid) {
   global $db;
   $sql = 'SELECT AVG(value) FROM ratings WHERE post=:pid';
@@ -410,6 +555,18 @@ function avgRating($pid) {
 }
 
 
+/**
+ * Insert new post into database. Returns true on success, otherwise returns false.
+ *
+ * @param title Post title
+ * @param desc Post description
+ * @param target_file Path to image
+ * @param author User ID
+ * @param cat Category ID
+ * @param rating Author rating
+ *
+ * @return boolean
+ */
 function savePost($title, $desc, $target_file, $author, $cat, $rating) {
   global $db;
   $db->beginTransaction();
@@ -436,12 +593,22 @@ function savePost($title, $desc, $target_file, $author, $cat, $rating) {
      }
   }
   catch (PDOException $e) {
-    //$db->rollback();
     return false;
   }
 }
 
 
+/**
+ * Update post in database. Returns true on success, otherwise returns false.
+ *
+ * @param title Post title
+ * @param desc Post description
+ * @param target_file Path to image
+ * @param cat Category ID
+ * @param postId Post ID
+ *
+ * @return boolean
+ */
 function updatePost($title, $desc, $target_file, $cat, $postId) {
   global $db;
   $db->beginTransaction();
@@ -467,6 +634,13 @@ function updatePost($title, $desc, $target_file, $cat, $postId) {
 }
 
 
+/**
+ * Delete post from database. Returns true on success, otherwise returns false.
+ *
+ * @param pid Post ID
+ *
+ * @return boolean
+ */
 function deletePost($pid) {
   global $db;
   $sql = 'DELETE FROM posts WHERE id=:pid';
@@ -482,6 +656,14 @@ function deletePost($pid) {
 }
 
 
+/**
+ * Checks if user is owner of post.
+ *
+ * @param userId User ID
+ * @param postId Post ID
+ *
+ * @return mixed
+ */
 function hasPost($userId, $postId) {
   global $db;
   $sql = 'SELECT * FROM posts WHERE id=:pid AND author=:uid';
@@ -499,6 +681,14 @@ function hasPost($userId, $postId) {
 }
 
 
+/**
+ * Checks if user can rate post.
+ *
+ * @param pid Post ID
+ * @param uid User ID
+ *
+ * @return boolean
+ */
 function canRate($pid, $uid) {
   $user = getUserById($uid);
   $voted = unserialize($user['voted']);
@@ -514,6 +704,14 @@ function canRate($pid, $uid) {
 }
 
 
+/**
+ * Update user styles.
+ *
+ * @param style New style
+ * @param uid User ID
+ *
+ * @return boolean
+ */
 function updateStyles($style, $uid) {
   global $db;
   $sql = 'UPDATE users SET styles=:style WHERE id=:uid';
@@ -530,6 +728,15 @@ function updateStyles($style, $uid) {
 }
 
 
+/**
+ * Update user data.
+ *
+ * @param uid User ID
+ * @param name User name
+ * @param surname User surname
+ *
+ * @return boolean
+ */
 function updateUser($uid, $name, $surname) {
   global $db;
   $sql = 'UPDATE users SET name=:name, surname=:surname WHERE id=:uid';

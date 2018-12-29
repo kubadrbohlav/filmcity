@@ -1,4 +1,5 @@
 <?php
+  // get user identity
   global $userIdentity;
   if (isLoggedIn()) {
     $userIdentity = getUserById($_SESSION['userid']);
