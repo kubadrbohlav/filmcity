@@ -60,6 +60,7 @@
       <div class="category-header row">
         <div class="col-12">
           <h1><?php echo $post['title']; ?></h1>
+          <a class="no-js print"><span class="fas fa-print"></span> Tisk</a>
         </div>
       </div>
 

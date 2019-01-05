@@ -383,21 +383,13 @@ header #toggleMenu.active {
 
 /* 6. Most Favourite */
 
-#most-favourire {
-
-}
-
 #most-favourire .cover {
   width: 100%;
   height: 370px;
   overflow: hidden;
   margin-bottom: 5px;
   background-color: #f5f5f5;
-}
-#most-favourire .cover a {
-  display: table-cell;
-  width: 100%;
-  vertical-align: middle;
+  padding: 0;
 }
 #most-favourire .cover img {
   width: 100%;
@@ -410,6 +402,7 @@ header #toggleMenu.active {
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1;
+  height: 2em;
   margin-bottom: 20px;
 }
 #most-favourire .title a {
@@ -620,10 +613,6 @@ form#rate-form input[type=submit]:hover {
 
 /* 10.2 Category page */
 
-.category-page {
-
-}
-
 .category-header {
   border-bottom: 1px solid #e2e3dd;
   margin-bottom: 2em;
@@ -659,9 +648,24 @@ form#rate-form input[type=submit]:hover {
   background-color: #2a567a;
 }
 
-#posts {
-
+a.print {
+  position: relative;
+  top: 22px;
+  display: block;
+  float: right;
+  background-color: #406d94;
+  color: #fff !important;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-out;
 }
+a.print:hover {
+  background-color: #2a567a;
+}
+a.no-js.print {
+  display: none;
+}
+
 article.post {
   padding: 2.5em 0;
 }
@@ -923,7 +927,8 @@ article.post .description {
   width: 40px;
   padding-left: 10px;
 }
-.profile-links nav ul li a:hover {
+.profile-links nav ul li a:hover,
+.profile-links nav ul li a.active {
   text-decoration: none;
   background-color: #dadada;
 }
@@ -1075,5 +1080,12 @@ article.post .description {
     display: inline-block;
     margin: 0 0 1.7em 0;
     float: none;
+  }
+
+  a.print {
+    top: 0;
+    float: none;
+    display: inline-block;
+    margin-bottom: 10px;
   }
 }

@@ -1,5 +1,5 @@
 // remove classes if javascript is allowed by browser
-$('header, #mobile-header, #toggleMenu, #mobile-menu').removeClass('no-js');
+$('header, #mobile-header, #toggleMenu, #mobile-menu, a.print').removeClass('no-js');
 
 // Toggle main menu
 $('#toggleMenu').click( function () {
@@ -39,4 +39,10 @@ $(window).scroll(function() {
   else {
     scrollBtn.fadeOut();
   }
+});
+
+// Print page
+
+$('a.print').click(function() {
+  window.print();
 });

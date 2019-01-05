@@ -1,0 +1,27 @@
+a {
+  text-decoration: none;
+}
+
+#intro {
+  height: auto;
+}
+
+header,
+.category-header .sorting,
+.pagination,
+#posts article .more-link,
+#sidebar,
+#scrollTop,
+.profile-page .heading a,
+a.print {
+  display: none;
+}
+
+#posts, article.post {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+article.post, .profile-page .post {
+  page-break-inside: avoid;
+}
